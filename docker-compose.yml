@@ -1,0 +1,32 @@
+services:
+  db:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: odoo
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - findmydevice-postgres-data:/var/lib/postgresql/data/pgdata
+
+  odoo:
+    image: odoo:17.0
+    restart: unless-stopped
+    depends_on:
+      - db
+    ports:
+      - "18069:8069"
+    environment:
+      HOST: db
+      USER: odoo
+      PASSWORD: odoo
+    command:
+      - --addons-path=/mnt/fmdb-addons,/usr/lib/python3/dist-packages/odoo/addons
+    volumes:
+      - findmydevice-odoo-data:/var/lib/odoo
+      - ./custom_addons/FMDBBackend/customaddons:/mnt/fmdb-addons:ro
+
+volumes:
+  findmydevice-postgres-data:
+  findmydevice-odoo-data:
